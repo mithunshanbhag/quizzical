@@ -1,6 +1,6 @@
-﻿namespace Quizzical.Cli.Constants;
+﻿namespace Quizzical.Constants;
 
-public class AppConstants
+public static class AppConstants
 {
     public const string AppName = "Quizzical";
 
@@ -10,7 +10,7 @@ public class AppConstants
 
     public const string ConsolePrompt = ">";
 
-    public static IReadOnlyDictionary<string, string[]> PreSelectedTopics = new Dictionary<string, string[]>
+    public static readonly IReadOnlyDictionary<string, string[]> PreSelectedTopics = new Dictionary<string, string[]>
     {
         { "Advertising", [] },
         { "Animals", [] },

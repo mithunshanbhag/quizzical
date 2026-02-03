@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Strategies.Implementations;
+﻿namespace Quizzical.Strategies.Implementations;
 
 /// <summary>
 ///     Base strategy class for console-based, single-player quizzes.

@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Factories.Interfaces;
+﻿namespace Quizzical.Factories.Interfaces;
 
 public interface IQuestionFactory
 {

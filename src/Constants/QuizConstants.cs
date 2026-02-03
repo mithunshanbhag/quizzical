@@ -1,6 +1,6 @@
-﻿namespace Quizzical.Cli.Constants;
+﻿namespace Quizzical.Constants;
 
-public class QuizConstants
+public static class QuizConstants
 {
     public const int DefaultNumberOfQuestions = 10;
 

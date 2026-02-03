@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Strategies.Implementations;
+﻿namespace Quizzical.Strategies.Implementations;
 
 public class GroupableItemsQuizPlayStrategy : SinglePlayerConsoleQuizPlayStrategyBase
 {

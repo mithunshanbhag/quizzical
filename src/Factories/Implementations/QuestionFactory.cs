@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Factories.Implementations;
+﻿namespace Quizzical.Factories.Implementations;
 
 public class QuestionFactory(ILogger<QuestionFactory> logger, ChatClient chatClient) : IQuestionFactory
 {

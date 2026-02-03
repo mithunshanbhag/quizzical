@@ -1,9 +1,9 @@
-﻿namespace Quizzical.Cli.Constants;
+﻿namespace Quizzical.Constants;
 
 /// <summary>
 ///     Configuration keys for the application.
 /// </summary>
-public class ConfigKeys
+public static class ConfigKeys
 {
     public const string QuizConfig = nameof(QuizConfig);
 

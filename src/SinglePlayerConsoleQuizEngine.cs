@@ -1,4 +1,4 @@
-namespace Quizzical.Cli;
+namespace Quizzical;
 
 /*
  * Rough algorithm:

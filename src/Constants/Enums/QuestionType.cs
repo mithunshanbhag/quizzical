@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Constants.Enums;
+﻿namespace Quizzical.Constants.Enums;
 
 /// <summary>
 ///     Represents the type of question in a quiz.

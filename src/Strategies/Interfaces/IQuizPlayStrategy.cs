@@ -1,4 +1,4 @@
-namespace Quizzical.Cli.Strategies.Interfaces;
+namespace Quizzical.Strategies.Interfaces;
 
 public interface IQuizPlayStrategy
 {

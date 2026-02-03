@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Factories.Implementations;
+﻿namespace Quizzical.Factories.Implementations;
 
 public class QuizFactory(IQuestionFactory questionFactory, ILogger<QuizFactory> logger) : IQuizFactory
 {

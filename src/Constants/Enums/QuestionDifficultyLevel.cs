@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Constants.Enums;
+﻿namespace Quizzical.Constants.Enums;
 
 public enum QuestionDifficultyLevel
 {

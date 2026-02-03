@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Models;
+﻿namespace Quizzical.Models;
 
 /// <summary>
 ///     Represents an item that can be flagged.

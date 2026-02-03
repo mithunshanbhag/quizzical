@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Models;
+﻿namespace Quizzical.Models;
 
 /// <summary>
 ///     Represents a quiz.
@@ -12,5 +12,5 @@ public class Quiz
     /// <summary>
     ///     The questions in the quiz.
     /// </summary>
-    public required Question[] Questions { get; set; }
+    public required Question[] Questions { get; init; }
 }

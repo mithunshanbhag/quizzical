@@ -1,4 +1,4 @@
-﻿namespace Quizzical.Cli.Misc.ExtensionMethods;
+﻿namespace Quizzical.Misc.ExtensionMethods;
 
 public static class ChatCompletionExtension
 {

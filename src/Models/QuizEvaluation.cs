@@ -1,6 +1,6 @@
-﻿namespace Quizzical.Cli.Models;
+﻿namespace Quizzical.Models;
 
 public class QuizEvaluation
 {
-    public Dictionary<Question, QuestionEvaluation> Evaluations { get; set; } = [];
+    public Dictionary<Question, QuestionEvaluation> Evaluations { get; } = [];
 }

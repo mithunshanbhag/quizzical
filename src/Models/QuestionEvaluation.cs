@@ -1,8 +1,8 @@
-﻿namespace Quizzical.Cli.Models;
+﻿namespace Quizzical.Models;
 
 public class QuestionEvaluation
 {
-    public OneOf<bool, None> Evaluation { get; set; }
+    public OneOf<bool, None> Evaluation { get; init; }
 
-    public TimeSpan TimeTaken { get; set; }
+    public TimeSpan TimeTaken { get; init; }
 }
