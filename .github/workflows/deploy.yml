@@ -1,0 +1,24 @@
+name: finskew-deploy
+run-name: deploy finskew
+
+on:
+  push:
+    branches:
+      - main
+    # do not trigger on changes to documentation
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  workflow_dispatch:
+    inputs:
+      runProvisioning:
+        type: boolean
+        default: false
+        description: Run bicep template provisioning?
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-template.yml
+    secrets: inherit
+    with:
+      runProvisioning: ${{ inputs.runProvisioning || false }}

@@ -1,0 +1,140 @@
+name: finskew-deploy-template
+
+on:
+  workflow_call:
+    inputs:
+      runProvisioning:
+        type: boolean
+        required: true
+        default: false
+
+env:
+  APP_NAME: finskew
+  DOTNET_VERSION_10: "10.0.x"
+  RESOURCE_GROUP_NAME: finskew-rg
+  # metadata will be stored, and not where the resource groups will be deployed.
+  # You can specify any location for `SUB_DEPLOYMENT_REGION`. It's the region where the deployment
+  SUB_DEPLOYMENT_REGION: centralindia
+
+jobs:
+  provision:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4.1.1
+      - name: azure login
+        uses: azure/login@v2.2.0
+        with:
+          creds: ${{ secrets.SERVICEPRINCIPAL }}
+      # temporarily use az cli to upgrade bicep
+      # Context: https://github.com/Azure/bicep/issues/16681#issuecomment-2747568200
+      - name: upgrade bicep
+        uses: azure/CLI@v2.2.0
+        with:
+          inlineScript: az bicep upgrade
+    #   #
+    #   # section #1: provisioning the resources on Azure using bicep templates
+    #   #
+    #   # The first step is to create the resource group: `carteplus-cloud-rg`.
+    #   # The below step can also be manually executed as follows:
+    #   # az deployment sub create --location {LOCATION} --template-file .\createResourceGroup.bicep
+    #   # Note: You can specify any location for `{LOCATION}`. It's the region where the deployment metadata will be stored, and not
+    #   # where the resource groups will be deployed.
+    #   # @TODO: The 'azure/arm-deploy' action will soon be deprecated. Move to the 'azure/bicep-deploy' github action.
+    #   - name: create resource group
+    #     uses: Azure/arm-deploy@v2
+    #     if: ${{ inputs.runProvisioning == true }}
+    #     with:
+    #       scope: subscription
+    #       region: ${{ env.SUB_DEPLOYMENT_REGION }}
+    #       template: ./IaC/createCartePlusResourceGroup.bicep
+    #       parameters: rgName=${{ env.RESOURCE_GROUP_NAME }} envName=${{ inputs.environmentName }} githubCommitSha=${{ github.sha }} githubWorkflowRunId=${{ github.run_id }} githubRef=${{ github.ref }}
+    #   # Delete resource lock if it exists on the resource group
+    #   - name: delete any existing resource lock
+    #     uses: azure/CLI@v2.2.0
+    #     if: ${{ inputs.runProvisioning == true }}
+    #     with:
+    #       inlineScript: |
+    #         az lock delete --name ${{ env.RESOURCE_LOCK_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} || echo "No existing lock to delete"
+    #   # Next step is to deploy the Azure resources to the resource group `carteplus-cloud-rg` created above. The deployed resources
+    #   # include storage accounts, function apps, app services cosmos db, and service bus etc.
+    #   # The below step can also be manually executed as follows:
+    #   # az deployment group create -g carteplus-cloud-rg --template-file .\createResources.bicep --parameters .\createResources.parameters.json
+    #   # Note: The `createResources.parameters.json` file contains the parameters for the deployment; specifically the environment name.
+    #   # You can modify the parameters to customize the deployment.
+    #   # Note: The bicep template outputs are not shown in the logs. You can extract the outputs as shown here:
+    #   # https://github.com/Azure/arm-deploy#another-example-on-how-to-use-this-action-to-get-the-output-of-arm-template
+    #   # @TODO: The 'azure/arm-deploy' action will soon be deprecated. Move to the 'azure/bicep-deploy' github action.
+    #   - name: create resources
+    #     uses: Azure/arm-deploy@v2
+    #     if: ${{ inputs.runProvisioning == true }}
+    #     with:
+    #       scope: resourcegroup
+    #       region: ${{ env.SUB_DEPLOYMENT_REGION }}
+    #       resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
+    #       deploymentMode: Complete
+    #       deploymentName: deployment-run${{ github.run_number }}-attempt${{ github.run_attempt }}
+    #       template: ./IaC/createCartePlusResources.bicep
+    #       parameters: envName=${{ inputs.environmentName }} githubCommitSha=${{ github.sha }} githubWorkflowRunId=${{ github.run_id }} githubRef=${{ github.ref }} ptlApiKey=${{ secrets.PTL_APIKEY }} supportEmail=${{ secrets.CARTEPLUS_SUPPORT_EMAIL }}
+    #   # Next step is to deploy the extension resources to the resource group `carteplus-cloud-rg` created above.
+    #   # Extension resources cannot be deployed in complete mode above, so we're deploying it separately from the resources.
+    #   - name: create extension resources
+    #     uses: Azure/arm-deploy@v2
+    #     if: ${{ inputs.runProvisioning == true }}
+    #     with:
+    #       scope: resourcegroup
+    #       region: ${{ env.SUB_DEPLOYMENT_REGION }}
+    #       resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
+    #       deploymentMode: Incremental
+    #       deploymentName: deployment-run${{ github.run_number }}-attempt${{ github.run_attempt }}-extension
+    #       template: ./IaC/createCartePlusExtensionResources.bicep
+    #       parameters: envName=${{ inputs.environmentName }}
+    #   # Add resource lock
+    #   - name: add resource lock
+    #     uses: azure/CLI@v2.2.0
+    #     if: ${{ inputs.runProvisioning == true }}
+    #     with:
+    #       inlineScript: az lock create --name ${{ env.RESOURCE_LOCK_NAME }} --lock-type CanNotDelete --resource-group ${{ env.RESOURCE_GROUP_NAME }}
+
+  build-deploy-finskew-app:
+    runs-on: ubuntu-22.04
+    needs: provision
+    timeout-minutes: 10
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4.1.1
+      - name: setup dotnet
+        uses: actions/setup-dotnet@v4.0.0
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION_10 }}
+      - name: dotnet restore
+        run: dotnet restore
+        working-directory: ./src/FinSkew.Ui
+      - name: run unit tests
+        run: dotnet test ./tests/FinSkew.Ui.UnitTests/FinSkew.Ui.UnitTests.csproj --logger trx --results-directory ./tests/FinSkew.Ui.UnitTests/TestResults-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: publish unit test results
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: FinSkew.Ui.UnitTests
+          path: ./tests/FinSkew.Ui.UnitTests/TestResults-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: build finskew ui
+        run: dotnet publish ./src/FinSkew.Ui/FinSkew.Ui.csproj -c Release -o ./Publish/FinSkew.Ui
+      - name: azure login
+        uses: azure/login@v2.2.0
+        with:
+          creds: ${{ secrets.SERVICEPRINCIPAL }}
+      - name: get swa deployment token
+        id: get-swaDeploymentToken
+        uses: azure/CLI@v2.2.0
+        with:
+          inlineScript: echo "swaDeploymentToken"="$(az staticwebapp secrets list -g ${{ env.RESOURCE_GROUP_NAME }} -n ${{ env.APP_NAME }} --query properties.apiKey -o tsv)" >> $GITHUB_OUTPUT
+      - name: deploy finskew ui to swa
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ steps.get-swaDeploymentToken.outputs.swaDeploymentToken }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "./Publish/FinSkew.Ui/wwwroot"
+          api_location: "" # No API in this app
+          output_location: "" # No build step, so output location is same as app location
