@@ -40,6 +40,7 @@ switch ($Task) {
         Write-Host '  ./run-local.ps1 unit-tests'
         Write-Host '  ./run-local.ps1 format'
         Write-Host '  ./run-local.ps1 run'
+        Write-Host '  ./run-local.ps1 all'
         break
     }
     'restore' {
@@ -51,9 +52,9 @@ switch ($Task) {
         break
     }
     'run' {
-        $arguments = @('run', '--project', $appProjectPath, '--no-build')
+        $arguments = @('run', '--project', $appProjectPath)
 
-        if ($RemainingArgs.Count -gt 0) {
+        if ($null -ne $RemainingArgs -and $RemainingArgs.Length -gt 0) {
             $arguments += '--'
             $arguments += $RemainingArgs
         }
