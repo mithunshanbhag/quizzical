@@ -39,7 +39,7 @@ switch ($Task) {
         Write-Host '  ./run-local.ps1 test'
         Write-Host '  ./run-local.ps1 unit-tests'
         Write-Host '  ./run-local.ps1 format'
-        Write-Host '  ./run-local.ps1 run -- --topic Science'
+        Write-Host '  ./run-local.ps1 run'
         break
     }
     'restore' {

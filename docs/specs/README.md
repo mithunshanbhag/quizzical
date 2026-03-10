@@ -2,7 +2,7 @@
 
 ## Product Summary
 
-Quizzical is a .NET console application that generates AI-assisted quizzes for a single player. The current experience focuses on a short terminal-based game loop where the player selects a quiz type, topic, number of questions, and difficulty level before answering generated questions.
+Quizzical is a .NET 10 console application that generates AI-assisted quizzes for a single player. The current experience focuses on a short terminal-based game loop where the player selects a quiz type, topic, number of questions, and difficulty level before answering generated questions.
 
 ## Supported Quiz Modes
 
@@ -27,6 +27,7 @@ Quizzical is a .NET console application that generates AI-assisted quizzes for a
 ## Technical Notes
 
 - Main project: `/src/Quizzical.csproj`
+- Target framework: `net10.0`
 - Local workflow script: `/run-local.ps1`
 - Unit tests: `/tests/Quizzical.UnitTests`
 - Root solution/workspace: `/Quizzical.slnx`
