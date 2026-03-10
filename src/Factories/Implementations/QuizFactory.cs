@@ -1,15 +1,18 @@
-﻿namespace Quizzical.Factories.Implementations;
+namespace Quizzical.Factories.Implementations;
 
-public class QuizFactory(IQuestionFactory questionFactory, ILogger<QuizFactory> logger) : IQuizFactory
+public class QuizFactory(IQuestionFactory questionFactory) : IQuizFactory
 {
     public async Task<Quiz> GenerateAsync(QuizConfig request, CancellationToken cancellationToken = default)
     {
+        if (request.QuestionType is not (QuestionType.MultipleChoice or QuestionType.TrueFalse or QuestionType.GroupableItems))
+            throw new NotSupportedException($"Question type {request.QuestionType} is not supported yet.");
+
         var questions = await questionFactory.GenerateAsync(request, cancellationToken);
 
-        return request.QuestionType switch
+        return new Quiz
         {
-            QuestionType.MultipleChoice or QuestionType.TrueFalse or QuestionType.GroupableItems => new Quiz { Config = request, Questions = questions },
-            _ => throw new NotSupportedException($"Question type {request.QuestionType} is not supported yet.")
+            Config = request,
+            Questions = questions
         };
     }
 }
