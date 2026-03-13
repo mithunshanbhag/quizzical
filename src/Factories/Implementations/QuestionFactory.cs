@@ -9,6 +9,7 @@ public class QuestionFactory(ILogger<QuestionFactory> logger, ChatClient chatCli
             Question[] questions = request.QuestionType switch
             {
                 QuestionType.MultipleChoice => await GenerateQuestionsAsync<MultipleChoiceQuestion>(request, cancellationToken),
+                QuestionType.MultipleSelect => await GenerateQuestionsAsync<MultipleSelectQuestion>(request, cancellationToken),
                 QuestionType.TrueFalse => await GenerateQuestionsAsync<TrueFalseQuestion>(request, cancellationToken),
                 QuestionType.GroupableItems => await GenerateQuestionsAsync<GroupableItemsQuestion>(request, cancellationToken),
                 _ => throw new NotImplementedException()
@@ -48,9 +49,20 @@ public class QuestionFactory(ILogger<QuestionFactory> logger, ChatClient chatCli
         return
         [
             ChatMessage.CreateAssistantMessage(ChatConstants.AssistantMessage),
-            ChatMessage.CreateUserMessage(
-                $"Create {request.NumberOfQuestions} {request.QuestionType} questions on the topic of {request.Topic} with difficulty level {request.DifficultyLevel}")
+            ChatMessage.CreateUserMessage(ComposeQuestionRequest(request))
         ];
+    }
+
+    private static string ComposeQuestionRequest(QuizConfig request)
+    {
+        var questionTypeInstruction = request.QuestionType switch
+        {
+            QuestionType.MultipleSelect =>
+                "multi-select questions with multiple correct answers. Each question must populate CorrectAnswerIndices with every correct option index and include at least two correct answers",
+            _ => $"{request.QuestionType} questions"
+        };
+
+        return $"Create {request.NumberOfQuestions} {questionTypeInstruction} on the topic of {request.Topic} with difficulty level {request.DifficultyLevel}.";
     }
 
     private static ChatCompletionOptions ComposeChatCompletionOptions<TQuestion>() where TQuestion : Question

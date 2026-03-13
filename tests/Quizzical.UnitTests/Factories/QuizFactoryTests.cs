@@ -6,6 +6,7 @@ public class QuizFactoryTests
 
     [Theory]
     [InlineData(QuestionType.MultipleChoice)]
+    [InlineData(QuestionType.MultipleSelect)]
     [InlineData(QuestionType.TrueFalse)]
     [InlineData(QuestionType.GroupableItems)]
     public async Task GenerateAsync_WithSupportedQuestionType_ReturnsQuiz(QuestionType questionType)

@@ -36,6 +36,7 @@ public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory q
             IQuizPlayStrategy quizPlayStrategy = quizConfig.QuestionType switch
             {
                 QuestionType.MultipleChoice => quizPlayStrategies.OfType<MultipleChoiceQuizPlayStrategy>().Single(),
+                QuestionType.MultipleSelect => quizPlayStrategies.OfType<MultiSelectQuizPlayStrategy>().Single(),
                 QuestionType.TrueFalse => quizPlayStrategies.OfType<TrueFalseQuizPlayStrategy>().Single(),
                 QuestionType.GroupableItems => quizPlayStrategies.OfType<GroupableItemsQuizPlayStrategy>().Single(),
                 _ => throw new NotSupportedException($"Question type {quizConfig.QuestionType} is not supported yet.")
@@ -113,7 +114,7 @@ public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory q
                 .PageSize(8)
                 .HighlightStyle(Color.Cyan1.ToString())
                 .MoreChoicesText("[cyan](Move up and down to reveal more topics)[/]")
-                .AddChoices(QuestionType.MultipleChoice, QuestionType.TrueFalse));
+                .AddChoices(QuestionType.MultipleChoice, QuestionType.MultipleSelect, QuestionType.TrueFalse));
     }
 
     private static async Task<bool> AskUserToPlayAgain(QuizEvaluation quizEvaluation)

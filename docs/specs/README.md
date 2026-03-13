@@ -9,6 +9,7 @@ Quizzical is a .NET 10 console application that generates AI-assisted quizzes fo
 | Quiz type       | Status                                | Notes                                                                                     |
 | --------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Multiple-choice | Supported                             | Presents several choices and evaluates one correct answer.                                |
+| Multi-select    | Supported                             | Presents several choices and evaluates an exact match against multiple correct answers.   |
 | True/false      | Supported                             | Presents a boolean choice and evaluates the selected answer.                              |
 | Groupable items | In code, not yet surfaced in the menu | The domain model and play strategy exist, but the current menu does not expose this mode. |
 | Sequence        | Planned                               | Reserved for future work.                                                                 |

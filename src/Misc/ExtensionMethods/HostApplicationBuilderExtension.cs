@@ -29,6 +29,7 @@ public static class HostApplicationBuilderExtension
             builder.Services
                 .AddTransient<IQuizPlayStrategy, TrueFalseQuizPlayStrategy>()
                 .AddTransient<IQuizPlayStrategy, MultipleChoiceQuizPlayStrategy>()
+                .AddTransient<IQuizPlayStrategy, MultiSelectQuizPlayStrategy>()
                 .AddTransient<IQuizPlayStrategy, GroupableItemsQuizPlayStrategy>();
 
             // services

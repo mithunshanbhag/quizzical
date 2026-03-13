@@ -30,6 +30,32 @@ public class QuestionEvaluationTests
         Assert.Equal(TimeSpan.FromSeconds(5), result.TimeTaken);
     }
 
+    [Fact]
+    public void MultipleSelectQuestion_Evaluate_WithSkippedAnswer_ReturnsNone()
+    {
+        // Arrange
+        var sut = new MultipleSelectQuestion
+        {
+            Text = "Select all planets with rings.",
+            AnswerChoices = ["Earth", "Saturn", "Mars", "Uranus"],
+            CorrectAnswerIndices = [1, 3]
+        };
+
+        var response = new QuestionResponse
+        {
+            QuestionType = QuestionType.MultipleSelect,
+            Response = new None(),
+            TimeTaken = TimeSpan.FromSeconds(6)
+        };
+
+        // Act
+        var result = sut.Evaluate(response);
+
+        // Assert
+        Assert.True(result.Evaluation.IsT1);
+        Assert.Equal(TimeSpan.FromSeconds(6), result.TimeTaken);
+    }
+
     #endregion
 
     #region Positive cases
@@ -113,6 +139,33 @@ public class QuestionEvaluationTests
         Assert.True(result.Evaluation.AsT0);
     }
 
+    [Fact]
+    public void MultipleSelectQuestion_Evaluate_WithMatchingAnswersInDifferentOrder_ReturnsTrue()
+    {
+        // Arrange
+        var sut = new MultipleSelectQuestion
+        {
+            Text = "Select all renewable energy sources.",
+            AnswerChoices = ["Solar", "Coal", "Wind", "Natural Gas"],
+            CorrectAnswerIndices = [0, 2]
+        };
+
+        var response = new QuestionResponse
+        {
+            QuestionType = QuestionType.MultipleSelect,
+            Response = new[] { 2, 0 },
+            TimeTaken = TimeSpan.FromSeconds(3)
+        };
+
+        // Act
+        var result = sut.Evaluate(response);
+
+        // Assert
+        Assert.True(result.Evaluation.IsT0);
+        Assert.True(result.Evaluation.AsT0);
+        Assert.Equal(TimeSpan.FromSeconds(3), result.TimeTaken);
+    }
+
     #endregion
 
     #region Negative cases
@@ -166,6 +219,33 @@ public class QuestionEvaluationTests
         // Assert
         Assert.True(result.Evaluation.IsT0);
         Assert.False(result.Evaluation.AsT0);
+    }
+
+    [Fact]
+    public void MultipleSelectQuestion_Evaluate_WithExtraAnswer_ReturnsFalse()
+    {
+        // Arrange
+        var sut = new MultipleSelectQuestion
+        {
+            Text = "Select all even numbers.",
+            AnswerChoices = ["1", "2", "3", "4"],
+            CorrectAnswerIndices = [1, 3]
+        };
+
+        var response = new QuestionResponse
+        {
+            QuestionType = QuestionType.MultipleSelect,
+            Response = new[] { 1, 2, 3 },
+            TimeTaken = TimeSpan.FromSeconds(2)
+        };
+
+        // Act
+        var result = sut.Evaluate(response);
+
+        // Assert
+        Assert.True(result.Evaluation.IsT0);
+        Assert.False(result.Evaluation.AsT0);
+        Assert.Equal(TimeSpan.FromSeconds(2), result.TimeTaken);
     }
 
     #endregion

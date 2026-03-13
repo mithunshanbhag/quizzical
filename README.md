@@ -12,6 +12,7 @@ Quizzical is a .NET 10 console app for generating AI-assisted quizzes with OpenA
 | Type | Description |
 | ---- | ----------- |
 | ✔ `Multiple-choice` | Questions with multiple answer choices and one correct answer. |
+| ✔ `Multi-select` | Questions with multiple answer choices and more than one correct answer. |
 | ✔ `True/false` | Questions with a true or false answer. |
 | ⚠ `Groupable items` | Implemented in the domain/strategy layer, but not yet exposed in the main menu. |
 | ❌ `Sequence` | Answer involves arranging items in the correct sequence (for example chronology or ordered steps). |

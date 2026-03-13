@@ -4,7 +4,7 @@ public class QuizFactory(IQuestionFactory questionFactory) : IQuizFactory
 {
     public async Task<Quiz> GenerateAsync(QuizConfig request, CancellationToken cancellationToken = default)
     {
-        if (request.QuestionType is not (QuestionType.MultipleChoice or QuestionType.TrueFalse or QuestionType.GroupableItems))
+        if (request.QuestionType is not (QuestionType.MultipleChoice or QuestionType.MultipleSelect or QuestionType.TrueFalse or QuestionType.GroupableItems))
             throw new NotSupportedException($"Question type {request.QuestionType} is not supported yet.");
 
         var questions = await questionFactory.GenerateAsync(request, cancellationToken);

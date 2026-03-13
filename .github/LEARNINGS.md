@@ -21,3 +21,9 @@
 
 - `tests\Quizzical.UnitTests` now uses xUnit.net v3 packages and `Assert.*` APIs instead of `FluentAssertions`.
 - xUnit.net v3 analyzers expect async test calls that accept a `CancellationToken` to use `TestContext.Current.CancellationToken`.
+
+## 2026-03-13T18:42:03Z
+
+- `QuestionType.MultipleSelect` is now a supported quiz mode with a dedicated `MultipleSelectQuestion` model and `MultiSelectQuizPlayStrategy`.
+- Multi-select evaluation uses exact-match, order-insensitive scoring against `CorrectAnswerIndices`, and the console flow keeps skip behavior explicit via `{SKIP}`.
+- `QuestionFactory` includes extra prompt guidance for multi-select generation so AI responses populate `CorrectAnswerIndices` with multiple correct options.

@@ -17,6 +17,7 @@ Quizzical currently has no graphical UI. Its user experience is a terminal-drive
 
 ## Interaction Constraints
 
-- The current menu exposes multiple-choice and true/false quizzes.
+- The current menu exposes multiple-choice, multi-select, and true/false quizzes.
+- Multi-select questions use a terminal multi-selection prompt and require an exact match to the expected set of answers.
 - The application requires valid OpenAI credentials to generate questions.
 - The application is intentionally interactive; automated verification should focus on unit tests around domain and factory behavior.

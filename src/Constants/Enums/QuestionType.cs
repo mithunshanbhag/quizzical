@@ -18,8 +18,6 @@ public enum QuestionType
     /// <summary>
     ///     A question with multiple answer choices, and multiple correct answers.
     /// </summary>
-    /// <remarks>@TODO: Refine this property's name.</remarks>
-    [Obsolete("Reserved for future use.")] [EditorBrowsable(EditorBrowsableState.Never)]
     MultipleSelect,
 
     /// <summary>
