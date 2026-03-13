@@ -27,3 +27,8 @@
 - `QuestionType.MultipleSelect` is now a supported quiz mode with a dedicated `MultipleSelectQuestion` model and `MultiSelectQuizPlayStrategy`.
 - Multi-select evaluation uses exact-match, order-insensitive scoring against `CorrectAnswerIndices`, and the console flow keeps skip behavior explicit via `{SKIP}`.
 - `QuestionFactory` includes extra prompt guidance for multi-select generation so AI responses populate `CorrectAnswerIndices` with multiple correct options.
+
+## 2026-03-13T19:25:14Z
+
+- `QuestionFactory` now shuffles `AnswerChoices` for `MultipleChoiceQuestion` and `MultipleSelectQuestion` immediately after deserialization, then remaps the stored correct index or indices before the quiz is played.
+- The choice-randomization logic lives in `src\Misc\Utilities\AnswerChoiceRandomizer.cs` and is covered by unit tests via `InternalsVisibleTo("Quizzical.UnitTests")`.

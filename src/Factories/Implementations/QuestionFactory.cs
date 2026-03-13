@@ -1,4 +1,6 @@
-﻿namespace Quizzical.Factories.Implementations;
+﻿using Quizzical.Misc.Utilities;
+
+namespace Quizzical.Factories.Implementations;
 
 public class QuestionFactory(ILogger<QuestionFactory> logger, ChatClient chatClient) : IQuestionFactory
 {
@@ -41,6 +43,12 @@ public class QuestionFactory(ILogger<QuestionFactory> logger, ChatClient chatCli
         result.Value.Dump(logger); // dump debug details to console
 
         var questionList = JsonSerializer.Deserialize<QuestionList<TQuestion>>(result.Value.Content.FirstOrDefault()?.Text!);
+
+        if (questionList.Questions is null)
+            throw new JsonException("OpenAI returned an invalid question payload.");
+
+        AnswerChoiceRandomizer.ShuffleQuestionChoices(questionList.Questions, Random.Shared);
+
         return questionList.Questions;
     }
 
@@ -57,8 +65,10 @@ public class QuestionFactory(ILogger<QuestionFactory> logger, ChatClient chatCli
     {
         var questionTypeInstruction = request.QuestionType switch
         {
+            QuestionType.MultipleChoice =>
+                "multiple-choice questions with a single correct answer. Do not always place the correct answer first in AnswerChoices",
             QuestionType.MultipleSelect =>
-                "multi-select questions with multiple correct answers. Each question must populate CorrectAnswerIndices with every correct option index and include at least two correct answers",
+                "multi-select questions with multiple correct answers. Each question must populate CorrectAnswerIndices with every correct option index, include at least two correct answers, and avoid clustering the correct answers at the start of AnswerChoices",
             _ => $"{request.QuestionType} questions"
         };
 
