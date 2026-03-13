@@ -1,4 +1,3 @@
-global using FluentAssertions;
 global using OneOf.Types;
 global using Quizzical.Constants.Enums;
 global using Quizzical.Factories.Implementations;

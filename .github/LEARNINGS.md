@@ -16,3 +16,8 @@
 
 - `run-local.ps1 run` must guard `$RemainingArgs` for `$null` because the script runs with `Set-StrictMode -Version Latest`.
 - The `run` task should invoke `dotnet run --project .\src\Quizzical.csproj` without `--no-build` so the convenience workflow works from a clean checkout/build state.
+
+## 2026-03-13T15:29:09Z
+
+- `tests\Quizzical.UnitTests` now uses xUnit.net v3 packages and `Assert.*` APIs instead of `FluentAssertions`.
+- xUnit.net v3 analyzers expect async test calls that accept a `CancellationToken` to use `TestContext.Current.CancellationToken`.

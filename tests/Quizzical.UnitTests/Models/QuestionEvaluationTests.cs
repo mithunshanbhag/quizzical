@@ -2,6 +2,36 @@ namespace Quizzical.UnitTests.Models;
 
 public class QuestionEvaluationTests
 {
+    #region Boundary and edge cases
+
+    [Fact]
+    public void GroupableItemsQuestion_Evaluate_WithSkippedAnswer_ReturnsNone()
+    {
+        // Arrange
+        var sut = new GroupableItemsQuestion
+        {
+            Text = "Select all mammals.",
+            AnswerChoices = ["Whale", "Salmon", "Tiger"],
+            Groupable = [0, 2]
+        };
+
+        var response = new QuestionResponse
+        {
+            QuestionType = QuestionType.GroupableItems,
+            Response = new None(),
+            TimeTaken = TimeSpan.FromSeconds(5)
+        };
+
+        // Act
+        var result = sut.Evaluate(response);
+
+        // Assert
+        Assert.True(result.Evaluation.IsT1);
+        Assert.Equal(TimeSpan.FromSeconds(5), result.TimeTaken);
+    }
+
+    #endregion
+
     #region Positive cases
 
     [Fact]
@@ -26,9 +56,9 @@ public class QuestionEvaluationTests
         var result = sut.Evaluate(response);
 
         // Assert
-        result.Evaluation.IsT0.Should().BeTrue();
-        result.Evaluation.AsT0.Should().BeTrue();
-        result.TimeTaken.Should().Be(TimeSpan.FromSeconds(4));
+        Assert.True(result.Evaluation.IsT0);
+        Assert.True(result.Evaluation.AsT0);
+        Assert.Equal(TimeSpan.FromSeconds(4), result.TimeTaken);
     }
 
     [Fact]
@@ -52,9 +82,9 @@ public class QuestionEvaluationTests
         var result = sut.Evaluate(response);
 
         // Assert
-        result.Evaluation.IsT0.Should().BeTrue();
-        result.Evaluation.AsT0.Should().BeTrue();
-        result.TimeTaken.Should().Be(TimeSpan.FromSeconds(2));
+        Assert.True(result.Evaluation.IsT0);
+        Assert.True(result.Evaluation.AsT0);
+        Assert.Equal(TimeSpan.FromSeconds(2), result.TimeTaken);
     }
 
     [Fact]
@@ -79,8 +109,8 @@ public class QuestionEvaluationTests
         var result = sut.Evaluate(response);
 
         // Assert
-        result.Evaluation.IsT0.Should().BeTrue();
-        result.Evaluation.AsT0.Should().BeTrue();
+        Assert.True(result.Evaluation.IsT0);
+        Assert.True(result.Evaluation.AsT0);
     }
 
     #endregion
@@ -109,8 +139,8 @@ public class QuestionEvaluationTests
         var result = sut.Evaluate(response);
 
         // Assert
-        result.Evaluation.IsT0.Should().BeTrue();
-        result.Evaluation.AsT0.Should().BeFalse();
+        Assert.True(result.Evaluation.IsT0);
+        Assert.False(result.Evaluation.AsT0);
     }
 
     [Fact]
@@ -134,38 +164,8 @@ public class QuestionEvaluationTests
         var result = sut.Evaluate(response);
 
         // Assert
-        result.Evaluation.IsT0.Should().BeTrue();
-        result.Evaluation.AsT0.Should().BeFalse();
-    }
-
-    #endregion
-
-    #region Boundary and edge cases
-
-    [Fact]
-    public void GroupableItemsQuestion_Evaluate_WithSkippedAnswer_ReturnsNone()
-    {
-        // Arrange
-        var sut = new GroupableItemsQuestion
-        {
-            Text = "Select all mammals.",
-            AnswerChoices = ["Whale", "Salmon", "Tiger"],
-            Groupable = [0, 2]
-        };
-
-        var response = new QuestionResponse
-        {
-            QuestionType = QuestionType.GroupableItems,
-            Response = new None(),
-            TimeTaken = TimeSpan.FromSeconds(5)
-        };
-
-        // Act
-        var result = sut.Evaluate(response);
-
-        // Assert
-        result.Evaluation.IsT1.Should().BeTrue();
-        result.TimeTaken.Should().Be(TimeSpan.FromSeconds(5));
+        Assert.True(result.Evaluation.IsT0);
+        Assert.False(result.Evaluation.AsT0);
     }
 
     #endregion

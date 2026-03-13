@@ -24,15 +24,16 @@ public class QuizFactoryTests
 
         var questionFactory = new StubQuestionFactory(questions);
         var sut = new QuizFactory(questionFactory);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        var result = await sut.GenerateAsync(quizConfig);
+        var result = await sut.GenerateAsync(quizConfig, cancellationToken);
 
         // Assert
-        result.Config.Should().BeSameAs(quizConfig);
-        result.Questions.Should().BeSameAs(questions);
-        questionFactory.CallCount.Should().Be(1);
-        questionFactory.LastRequest.Should().BeSameAs(quizConfig);
+        Assert.Same(quizConfig, result.Config);
+        Assert.Same(questions, result.Questions);
+        Assert.Equal(1, questionFactory.CallCount);
+        Assert.Same(quizConfig, questionFactory.LastRequest);
     }
 
     #endregion
@@ -47,16 +48,15 @@ public class QuizFactoryTests
         var quizConfig = CreateQuizConfig(unsupportedQuestionType);
         var questionFactory = new StubQuestionFactory([]);
         var sut = new QuizFactory(questionFactory);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        Func<Task> act = () => sut.GenerateAsync(quizConfig);
+        Func<Task> act = () => sut.GenerateAsync(quizConfig, cancellationToken);
 
         // Assert
-        await act.Should()
-            .ThrowAsync<NotSupportedException>()
-            .WithMessage($"Question type {unsupportedQuestionType} is not supported yet.");
-
-        questionFactory.CallCount.Should().Be(0);
+        var exception = await Assert.ThrowsAsync<NotSupportedException>(act);
+        Assert.Equal($"Question type {unsupportedQuestionType} is not supported yet.", exception.Message);
+        Assert.Equal(0, questionFactory.CallCount);
     }
 
     #endregion
@@ -70,19 +70,21 @@ public class QuizFactoryTests
         var quizConfig = CreateQuizConfig(QuestionType.TrueFalse);
         var questionFactory = new StubQuestionFactory([]);
         var sut = new QuizFactory(questionFactory);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        var result = await sut.GenerateAsync(quizConfig);
+        var result = await sut.GenerateAsync(quizConfig, cancellationToken);
 
         // Assert
-        result.Questions.Should().BeEmpty();
-        questionFactory.CallCount.Should().Be(1);
+        Assert.Empty(result.Questions);
+        Assert.Equal(1, questionFactory.CallCount);
     }
 
     #endregion
 
-    private static QuizConfig CreateQuizConfig(QuestionType questionType) =>
-        new()
+    private static QuizConfig CreateQuizConfig(QuestionType questionType)
+    {
+        return new QuizConfig
         {
             QuestionType = questionType,
             DifficultyLevel = QuestionDifficultyLevel.Medium,
@@ -92,6 +94,7 @@ public class QuizFactoryTests
             ShowAnswerHints = false,
             QuestionTimeLimitInSecs = 0
         };
+    }
 
     private sealed class StubQuestionFactory(Question[] questions) : IQuestionFactory
     {
