@@ -1,7 +1,7 @@
 # ✨ Quizzical: AI-generated quizzes! ✨
 
 ![Build status](https://img.shields.io/badge/build-manual-lightgrey?style=flat-square)
-![Unit tests](https://img.shields.io/badge/tests-xUnit-blue?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-unit%20%2B%20e2e-blue?style=flat-square)
 
 ![quizzical](https://github.com/user-attachments/assets/a9a8db3e-5613-4f03-a649-9b0608edee48)
 
@@ -49,6 +49,8 @@ Or use the convenience script:
 
 ```powershell
 .\run-local.ps1 run
+# or
+.\run-local.ps1 app
 ```
 
 The app will:
@@ -67,6 +69,10 @@ Common commands:
 .\run-local.ps1 build
 .\run-local.ps1 format
 .\run-local.ps1 run
+.\\run-local.ps1 app
+.\\run-local.ps1 tests
+.\\run-local.ps1 unit-tests
+.\\run-local.ps1 e2e-tests
 .\run-local.ps1 all
 ```
 
@@ -75,6 +81,7 @@ The script targets:
 - solution/workspace: `.\Quizzical.slnx`
 - app project: `.\src\Quizzical.csproj`
 - unit tests: `.\tests\Quizzical.UnitTests\Quizzical.UnitTests.csproj`
+- end-to-end tests: `.\tests\Quizzical.E2ETests\Quizzical.E2ETests.csproj`
 
 ## 🧪 Run the tests
 
@@ -89,6 +96,14 @@ Run only unit tests:
 ```powershell
 .\run-local.ps1 unit-tests
 ```
+
+Run only end-to-end tests:
+
+```powershell
+.\run-local.ps1 e2e-tests
+```
+
+The CLI end-to-end tests use deterministic, configuration-backed quiz data and do not require live OpenAI credentials.
 
 ## 📚 Additional documentation
 

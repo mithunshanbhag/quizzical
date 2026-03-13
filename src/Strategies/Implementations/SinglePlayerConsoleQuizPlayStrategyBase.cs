@@ -3,8 +3,10 @@
 /// <summary>
 ///     Base strategy class for console-based, single-player quizzes.
 /// </summary>
-public abstract class SinglePlayerConsoleQuizPlayStrategyBase : IQuizPlayStrategy
+public abstract class SinglePlayerConsoleQuizPlayStrategyBase(IQuizPromptService quizPromptService) : IQuizPlayStrategy
 {
+    protected IQuizPromptService QuizPromptService { get; } = quizPromptService;
+
     /// <remarks>
     ///     This uses the template design pattern. It defines a skeleton (template) method that calls into
     ///     other virtual/abstract (hook) methods overridden by derived classes.
@@ -35,14 +37,21 @@ public abstract class SinglePlayerConsoleQuizPlayStrategyBase : IQuizPlayStrateg
 
     protected virtual void DisplayQuestion(Question question, int index, int totalQuestions)
     {
-        AnsiConsole.Clear();
-        AnsiConsole.Progress()
-            .Columns(new TaskDescriptionColumn(), new ProgressBarColumn())
-            .Start(ctx =>
-            {
-                var progressTask = ctx.AddTask($"Question {index + 1} of {totalQuestions}", new ProgressTaskSettings { MaxValue = totalQuestions });
-                progressTask.Increment(index);
-            });
+        if (ConsoleMode.IsInteractive)
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.Progress()
+                .Columns(new TaskDescriptionColumn(), new ProgressBarColumn())
+                .Start(ctx =>
+                {
+                    var progressTask = ctx.AddTask($"Question {index + 1} of {totalQuestions}", new ProgressTaskSettings { MaxValue = totalQuestions });
+                    progressTask.Increment(index);
+                });
+        }
+        else
+        {
+            AnsiConsole.WriteLine($"Question {index + 1} of {totalQuestions}");
+        }
 
         AnsiConsole.MarkupLineInterpolated($"[yellow]{question.Text}[/]");
         AnsiConsole.WriteLine();
@@ -63,9 +72,7 @@ public abstract class SinglePlayerConsoleQuizPlayStrategyBase : IQuizPlayStrateg
         }
 
         AnsiConsole.WriteLine();
-        var toContinue = AnsiConsole.Prompt(
-            new ConfirmationPrompt("Continue?")
-                .HideDefaultValue());
+        var toContinue = QuizPromptService.PromptConfirmation("Continue?", hideDefaultValue: true);
 
         return toContinue;
     }

@@ -1,17 +1,17 @@
 namespace Quizzical.Strategies.Implementations;
 
-public class TrueFalseQuizPlayStrategy : SinglePlayerConsoleQuizPlayStrategyBase
+public class TrueFalseQuizPlayStrategy(IQuizPromptService quizPromptService) : SinglePlayerConsoleQuizPlayStrategyBase(quizPromptService)
 {
     protected override QuestionResponse CaptureUserResponse(Question question)
     {
         var stopwatch = Stopwatch.StartNew();
 
-        var selectedAnswer = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                //.Title("Select an answer:")
-                .HighlightStyle(Color.Cyan1.ToString())
-                .PageSize(10)
-                .AddChoices(bool.TrueString, bool.FalseString, QuizConstants.SkipOptionText));
+        var selectedAnswer = QuizPromptService.PromptSingleSelection(
+        [
+            bool.TrueString,
+            bool.FalseString,
+            QuizConstants.SkipOptionText
+        ]);
 
         stopwatch.Stop();
 

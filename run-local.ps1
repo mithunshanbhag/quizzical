@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('help', 'restore', 'build', 'run', 'test', 'unit-tests', 'format', 'all')]
+    [ValidateSet('help', 'restore', 'build', 'run', 'app', 'test', 'tests', 'unit-tests', 'e2e-tests', 'format', 'all')]
     [string]$Task = 'help',
 
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -13,7 +13,8 @@ Set-StrictMode -Version Latest
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $solutionPath = Join-Path $repoRoot 'Quizzical.slnx'
 $appProjectPath = Join-Path $repoRoot 'src/Quizzical.csproj'
-$testProjectPath = Join-Path $repoRoot 'tests/Quizzical.UnitTests/Quizzical.UnitTests.csproj'
+$unitTestProjectPath = Join-Path $repoRoot 'tests/Quizzical.UnitTests/Quizzical.UnitTests.csproj'
+$e2eTestProjectPath = Join-Path $repoRoot 'tests/Quizzical.E2ETests/Quizzical.E2ETests.csproj'
 
 function Invoke-DotNetCommand {
     param(
@@ -36,10 +37,11 @@ switch ($Task) {
         Write-Host 'Examples:'
         Write-Host '  ./run-local.ps1 restore'
         Write-Host '  ./run-local.ps1 build'
-        Write-Host '  ./run-local.ps1 test'
+        Write-Host '  ./run-local.ps1 tests'
         Write-Host '  ./run-local.ps1 unit-tests'
+        Write-Host '  ./run-local.ps1 e2e-tests'
         Write-Host '  ./run-local.ps1 format'
-        Write-Host '  ./run-local.ps1 run'
+        Write-Host '  ./run-local.ps1 app'
         Write-Host '  ./run-local.ps1 all'
         break
     }
@@ -62,12 +64,31 @@ switch ($Task) {
         Invoke-DotNetCommand -Arguments $arguments
         break
     }
+    'app' {
+        $arguments = @('run', '--project', $appProjectPath)
+
+        if ($null -ne $RemainingArgs -and $RemainingArgs.Length -gt 0) {
+            $arguments += '--'
+            $arguments += $RemainingArgs
+        }
+
+        Invoke-DotNetCommand -Arguments $arguments
+        break
+    }
     'test' {
         Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $solutionPath)
         break
     }
+    'tests' {
+        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $solutionPath)
+        break
+    }
     'unit-tests' {
-        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $testProjectPath)
+        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $unitTestProjectPath)
+        break
+    }
+    'e2e-tests' {
+        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $e2eTestProjectPath)
         break
     }
     'format' {

@@ -1,6 +1,6 @@
 ﻿namespace Quizzical.Strategies.Implementations;
 
-public class GroupableItemsQuizPlayStrategy : SinglePlayerConsoleQuizPlayStrategyBase
+public class GroupableItemsQuizPlayStrategy(IQuizPromptService quizPromptService) : SinglePlayerConsoleQuizPlayStrategyBase(quizPromptService)
 {
     protected override QuestionResponse CaptureUserResponse(Question question)
     {
@@ -8,15 +8,11 @@ public class GroupableItemsQuizPlayStrategy : SinglePlayerConsoleQuizPlayStrateg
 
         var stopwatch = Stopwatch.StartNew();
 
-        var multiSelection = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<string>()
-                //.Title("Select an answer:")
-                //.Required(false)
-                .HighlightStyle(Color.Cyan1.ToString())
-                .PageSize(10)
-                .AddChoices(
-                    groupableItemsQuestion.AnswerChoices.Append(
-                        QuizConstants.SkipOptionText)));
+        var multiSelection = QuizPromptService.PromptMultiSelection(
+        [
+            ..groupableItemsQuestion.AnswerChoices,
+            QuizConstants.SkipOptionText
+        ]);
 
         stopwatch.Stop();
 

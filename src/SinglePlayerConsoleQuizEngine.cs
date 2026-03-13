@@ -19,7 +19,7 @@ namespace Quizzical;
  * 6. At any point, if the user wants to quit, they can do so by pressing Ctrl+C.
  */
 
-public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory quizFactory, IEnumerable<IQuizPlayStrategy> quizPlayStrategies)
+public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory quizFactory, IEnumerable<IQuizPlayStrategy> quizPlayStrategies, IQuizPromptService quizPromptService)
 {
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
@@ -50,6 +50,9 @@ public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory q
 
     private async Task<Quiz> GenerateQuizAsync(QuizConfig quizConfig, CancellationToken cancellationToken)
     {
+        if (!ConsoleMode.IsInteractive)
+            return await quizFactory.GenerateAsync(quizConfig, cancellationToken);
+
         return await AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .StartAsync("Generating questions...", async _ => await quizFactory.GenerateAsync(quizConfig, cancellationToken));
@@ -80,46 +83,25 @@ public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory q
         };
     }
 
-    private static QuestionDifficultyLevel GetUserSelectedDifficultyLevel()
+    private QuestionDifficultyLevel GetUserSelectedDifficultyLevel()
     {
-        AnsiConsole.Clear();
-
-        return AnsiConsole.Prompt(
-            new SelectionPrompt<QuestionDifficultyLevel>()
-                .Title($"What difficulty level would you like to play? {Emoji.Known.LevelSlider}")
-                .PageSize(8)
-                .HighlightStyle(Color.Cyan1.ToString())
-                .AddChoices(QuestionDifficultyLevel.Easy, QuestionDifficultyLevel.Medium, QuestionDifficultyLevel.Hard));
+        return quizPromptService.PromptDifficultyLevel();
     }
 
-    private static int GetUserSelectedNumberOfQuestions()
+    private int GetUserSelectedNumberOfQuestions()
     {
-        AnsiConsole.Clear();
-
-        return AnsiConsole.Prompt(
-            new TextPrompt<int>("How many questions would you like to answer?")
-                .DefaultValue(QuizConstants.DefaultNumberOfQuestions)
-                .Validate(answer => answer is < 1 or > 20
-                    ? ValidationResult.Error("Please enter a number between 1 and 20.")
-                    : ValidationResult.Success()));
+        return quizPromptService.PromptNumberOfQuestions();
     }
 
-    private static QuestionType GetUserSelectedQuizType()
+    private QuestionType GetUserSelectedQuizType()
     {
-        AnsiConsole.Clear();
-
-        return AnsiConsole.Prompt(
-            new SelectionPrompt<QuestionType>()
-                .Title($"What type of quiz would you like to play? {Emoji.Known.GrinningFace}")
-                .PageSize(8)
-                .HighlightStyle(Color.Cyan1.ToString())
-                .MoreChoicesText("[cyan](Move up and down to reveal more topics)[/]")
-                .AddChoices(QuestionType.MultipleChoice, QuestionType.MultipleSelect, QuestionType.TrueFalse));
+        return quizPromptService.PromptQuizType();
     }
 
-    private static async Task<bool> AskUserToPlayAgain(QuizEvaluation quizEvaluation)
+    private async Task<bool> AskUserToPlayAgain(QuizEvaluation quizEvaluation)
     {
-        AnsiConsole.Clear();
+        if (ConsoleMode.IsInteractive)
+            AnsiConsole.Clear();
 
         var totalQuestions = quizEvaluation.Evaluations.Count;
         var skippedAnswer = quizEvaluation.Evaluations.Count(qr => qr.Value.Evaluation.IsT1);
@@ -128,29 +110,30 @@ public class SinglePlayerConsoleQuizEngine(IConfiguration config, IQuizFactory q
 
         AnsiConsole.WriteLine($"Game Over! {Emoji.Known.ThumbsUp}");
         AnsiConsole.WriteLine();
-        AnsiConsole.Write(new BreakdownChart()
-            .Width(60)
-            .AddItem("Right Answers", correctAnswers, Color.Green)
-            .AddItem("Wrong Answers", incorrectAnswers, Color.Red)
-            .AddItem("Skipped Answers", skippedAnswer, Color.Yellow));
+
+        if (ConsoleMode.IsInteractive)
+        {
+            AnsiConsole.Write(new BreakdownChart()
+                .Width(60)
+                .AddItem("Right Answers", correctAnswers, Color.Green)
+                .AddItem("Wrong Answers", incorrectAnswers, Color.Red)
+                .AddItem("Skipped Answers", skippedAnswer, Color.Yellow));
+        }
+        else
+        {
+            AnsiConsole.WriteLine($"Right Answers: {correctAnswers}");
+            AnsiConsole.WriteLine($"Wrong Answers: {incorrectAnswers}");
+            AnsiConsole.WriteLine($"Skipped Answers: {skippedAnswer}");
+        }
 
         await Task.Delay(2000);
         AnsiConsole.WriteLine();
 
-        return AnsiConsole.Prompt(
-            new ConfirmationPrompt($"Would you like to play again? {Emoji.Known.GrinningFace}"));
+        return quizPromptService.PromptConfirmation($"Would you like to play again? {Emoji.Known.GrinningFace}");
     }
 
-    private static string GetUserSelectedTopic()
+    private string GetUserSelectedTopic()
     {
-        AnsiConsole.Clear();
-
-        return AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title($"What's your topic? {Emoji.Known.ThinkingFace}")
-                .PageSize(8)
-                .HighlightStyle(Color.Cyan1.ToString())
-                .MoreChoicesText("[cyan](Move up and down to reveal more topics)[/]")
-                .AddChoices(AppConstants.PreSelectedTopics.Keys));
+        return quizPromptService.PromptTopic(AppConstants.PreSelectedTopics.Keys.ToArray());
     }
 }

@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Quizzical.E2ETests/Quizzical.E2ETests.csproj" />
+  </Folder>
   <Project Path="src/Quizzical.csproj" />
   <Project Path="tests/Quizzical.UnitTests/Quizzical.UnitTests.csproj" />
 </Solution>

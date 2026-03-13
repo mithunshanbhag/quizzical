@@ -1,6 +1,6 @@
 namespace Quizzical.Strategies.Implementations;
 
-public class MultipleChoiceQuizPlayStrategy : SinglePlayerConsoleQuizPlayStrategyBase
+public class MultipleChoiceQuizPlayStrategy(IQuizPromptService quizPromptService) : SinglePlayerConsoleQuizPlayStrategyBase(quizPromptService)
 {
     protected override QuestionResponse CaptureUserResponse(Question question)
     {
@@ -8,14 +8,11 @@ public class MultipleChoiceQuizPlayStrategy : SinglePlayerConsoleQuizPlayStrateg
 
         var stopwatch = Stopwatch.StartNew();
 
-        var selectedAnswer = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                //.Title("Select an answer:")
-                .HighlightStyle(Color.Cyan1.ToString())
-                .PageSize(10)
-                .AddChoices(
-                    multipleChoiceQuestion.AnswerChoices.Append(
-                        QuizConstants.SkipOptionText)));
+        var selectedAnswer = QuizPromptService.PromptSingleSelection(
+        [
+            ..multipleChoiceQuestion.AnswerChoices,
+            QuizConstants.SkipOptionText
+        ]);
 
         stopwatch.Stop();
 

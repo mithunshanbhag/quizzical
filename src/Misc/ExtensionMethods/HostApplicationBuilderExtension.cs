@@ -8,6 +8,11 @@ public static class HostApplicationBuilderExtension
         {
             builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 
+            var testConfigurationPath = builder.Configuration[ConfigKeys.TestConfigurationPath];
+
+            if (!string.IsNullOrWhiteSpace(testConfigurationPath))
+                builder.Configuration.AddJsonFile(testConfigurationPath, optional: false);
+
             return builder;
         }
 
@@ -19,12 +24,6 @@ public static class HostApplicationBuilderExtension
             // mediatr
             builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()); });
 
-            // openai client
-            var quizzicalOpenAiApiKey = builder.Configuration[ConfigKeys.OpenAiApiKey];
-            var quizzicalOpenAiModel = builder.Configuration[ConfigKeys.OpenAiModel];
-            var openAiChatClient = new ChatClient(quizzicalOpenAiModel, quizzicalOpenAiApiKey);
-            builder.Services.AddSingleton(openAiChatClient);
-
             // strategies
             builder.Services
                 .AddTransient<IQuizPlayStrategy, TrueFalseQuizPlayStrategy>()
@@ -32,10 +31,26 @@ public static class HostApplicationBuilderExtension
                 .AddTransient<IQuizPlayStrategy, MultiSelectQuizPlayStrategy>()
                 .AddTransient<IQuizPlayStrategy, GroupableItemsQuizPlayStrategy>();
 
-            // services
-            builder.Services
-                .AddTransient<IQuizFactory, QuizFactory>()
-                .AddTransient<IQuestionFactory, QuestionFactory>();
+            if (builder.Configuration.GetSection(ConfigKeys.TestAutomation).Exists())
+                builder.Services.AddSingleton<IQuizPromptService, ConfiguredQuizPromptService>();
+            else
+                builder.Services.AddSingleton<IQuizPromptService, AnsiConsoleQuizPromptService>();
+
+            builder.Services.AddTransient<IQuizFactory, QuizFactory>();
+
+            if (builder.Configuration.GetSection(ConfigKeys.TestQuestionData).Exists())
+            {
+                builder.Services.AddTransient<IQuestionFactory, ConfiguredQuestionFactory>();
+            }
+            else
+            {
+                var quizzicalOpenAiApiKey = builder.Configuration[ConfigKeys.OpenAiApiKey];
+                var quizzicalOpenAiModel = builder.Configuration[ConfigKeys.OpenAiModel];
+                var openAiChatClient = new ChatClient(quizzicalOpenAiModel, quizzicalOpenAiApiKey);
+
+                builder.Services.AddSingleton(openAiChatClient);
+                builder.Services.AddTransient<IQuestionFactory, QuestionFactory>();
+            }
 
             // repositories
 

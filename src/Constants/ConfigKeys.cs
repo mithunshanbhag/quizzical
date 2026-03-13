@@ -10,4 +10,10 @@ public static class ConfigKeys
     public const string OpenAiApiKey = "OpenAi:ApiKey";
 
     public const string OpenAiModel = "OpenAi:Model";
+
+    public const string TestConfigurationPath = "Quizzical:TestConfigurationPath";
+
+    public const string TestQuestionData = "TestQuestionData";
+
+    public const string TestAutomation = "TestAutomation";
 }

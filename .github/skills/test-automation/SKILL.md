@@ -12,9 +12,16 @@ description: Guidelines and best practices for authoring automated tests (includ
 
 ## End-to-End Tests
 
+For web apps:
 - Please author all end-to-end tests using Playwright (with .NET SDK) and XUnit (using the `Microsoft.Playwright.XUnit` nuget package).
 - For details on getting started with Playwright using XUnit: [Playwright .NET SDK](https://playwright.dev/dotnet/docs/intro).
 - Playwright best practices are [documented here](https://playwright.dev/docs/best-practices).
 - For consistency, please use the same testing libraries and frameworks as mentioned in the Unit Tests section.
   - But, if possible, use Playwright's own assertion library for end-to-end tests over XUnit assertions.
 - It is preferable to run Playwright in Headless mode, especially since these tests will be running in CI/CD pipelines too.
+
+For CLI apps:
+- Please author end-to-end tests using CLIWrap (using the `CliWrap` nuget package), XUnit (using the `Microsoft.Playwright.XUnit` nuget package).
+- For details on getting started with CLIWrap: [CLIWrap GitHub](https://github.com/Tyrrrz/CLIWarp).
+- For consistency, please use the same testing libraries and frameworks as mentioned in the Unit Tests section.
+- It is preferable to run CLI end-to-end tests in a way that they can be executed in CI/CD pipelines without requiring special setup.
