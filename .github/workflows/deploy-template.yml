@@ -37,8 +37,8 @@ jobs:
         with:
           name: Quizzical.UnitTests
           path: ./tests/Quizzical.UnitTests/TestResults-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: build quizzical ui
-        run: dotnet publish ./src/Quizzical.Ui/Quizzical.Ui.csproj -c Release -o ./Publish/Quizzical.Ui
+      - name: build quizzical app
+        run: dotnet publish ./src/Quizzical/Quizzical.csproj -c Release -o ./Publish/Quizzical
       - name: azure login
         uses: azure/login@v2.2.0
         with:

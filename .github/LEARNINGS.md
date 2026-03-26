@@ -32,3 +32,10 @@
 
 - `QuestionFactory` now shuffles `AnswerChoices` for `MultipleChoiceQuestion` and `MultipleSelectQuestion` immediately after deserialization, then remaps the stored correct index or indices before the quiz is played.
 - The choice-randomization logic lives in `src\Misc\Utilities\AnswerChoiceRandomizer.cs` and is covered by unit tests via `InternalsVisibleTo("Quizzical.UnitTests")`.
+
+## 2026-03-26T08:54:20Z
+
+- The checked-in app project path is `src\Quizzical\Quizzical.csproj`; older references to `src\Quizzical.csproj` are stale.
+- `run-local.ps1` now uses the skill-aligned targets `app`, `tests`, `unit-tests`, and `e2e-tests`.
+- The `tests` target discovers checked-in `*Tests.csproj` projects under `tests\`, excluding `bin\` and `obj\`.
+- The `e2e-tests` target fails fast with a clear error when no checked-in `*E2E*.csproj` project exists under `tests\`.

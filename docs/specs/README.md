@@ -27,10 +27,11 @@ Quizzical is a .NET 10 console application that generates AI-assisted quizzes fo
 
 ## Technical Notes
 
-- Main project: `/src/Quizzical.csproj`
+- Main project: `/src/Quizzical/Quizzical.csproj`
 - Target framework: `net10.0`
 - Local workflow script: `/run-local.ps1`
 - Unit tests: `/tests/Quizzical.UnitTests`
+- Local script targets: `app`, `tests`, `unit-tests`, `e2e-tests`
 - Root solution/workspace: `/Quizzical.slnx`
 
 ## Configuration

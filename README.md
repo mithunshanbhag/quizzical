@@ -33,8 +33,8 @@ Quizzical is a .NET 10 console app for generating AI-assisted quizzes with OpenA
 4. Configure user secrets for the required OpenAI settings:
 
    ```powershell
-   dotnet user-secrets --project .\src\Quizzical.csproj set "OpenAi:ApiKey" "<your-api-key>"
-   dotnet user-secrets --project .\src\Quizzical.csproj set "OpenAi:Model" "<your-model-name>"
+   dotnet user-secrets --project .\src\Quizzical\Quizzical.csproj set "OpenAi:ApiKey" "<your-api-key>"
+   dotnet user-secrets --project .\src\Quizzical\Quizzical.csproj set "OpenAi:Model" "<your-model-name>"
    ```
 
 ## 🚀 Usage
@@ -42,13 +42,13 @@ Quizzical is a .NET 10 console app for generating AI-assisted quizzes with OpenA
 Run the app locally:
 
 ```powershell
-dotnet run --project .\src\Quizzical.csproj
+dotnet run --project .\src\Quizzical\Quizzical.csproj
 ```
 
 Or use the convenience script:
 
 ```powershell
-.\run-local.ps1 run
+.\run-local.ps1 app
 ```
 
 The app will:
@@ -63,31 +63,37 @@ The app will:
 Common commands:
 
 ```powershell
-.\run-local.ps1 restore
-.\run-local.ps1 build
-.\run-local.ps1 format
-.\run-local.ps1 run
-.\run-local.ps1 all
+.\run-local.ps1 app
+.\run-local.ps1 tests
+.\run-local.ps1 unit-tests
+.\run-local.ps1 e2e-tests
 ```
 
 The script targets:
 
-- solution/workspace: `.\Quizzical.slnx`
-- app project: `.\src\Quizzical.csproj`
+- app project: `.\src\Quizzical\Quizzical.csproj`
+- all test projects under `.\tests\**\*Tests.csproj`
 - unit tests: `.\tests\Quizzical.UnitTests\Quizzical.UnitTests.csproj`
+- E2E tests: auto-discovered from `.\tests\**\*E2E*.csproj`
 
 ## 🧪 Run the tests
 
 Run all tests in the workspace:
 
 ```powershell
-dotnet test .\Quizzical.slnx --nologo -v minimal
+.\run-local.ps1 tests
 ```
 
 Run only unit tests:
 
 ```powershell
 .\run-local.ps1 unit-tests
+```
+
+Run only E2E tests:
+
+```powershell
+.\run-local.ps1 e2e-tests
 ```
 
 ## 📚 Additional documentation

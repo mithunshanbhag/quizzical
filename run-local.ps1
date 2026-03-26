@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('help', 'restore', 'build', 'run', 'test', 'unit-tests', 'format', 'all')]
-    [string]$Task = 'help',
+    [Parameter(Position = 0)]
+    [ValidateSet('app', 'tests', 'unit-tests', 'e2e-tests')]
+    [string]$Target = 'app',
 
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$RemainingArgs
@@ -11,9 +12,9 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$solutionPath = Join-Path $repoRoot 'Quizzical.slnx'
-$appProjectPath = Join-Path $repoRoot 'src/Quizzical.csproj'
-$testProjectPath = Join-Path $repoRoot 'tests/Quizzical.UnitTests/Quizzical.UnitTests.csproj'
+$appProjectPath = Join-Path $repoRoot 'src\Quizzical\Quizzical.csproj'
+$testsRootPath = Join-Path $repoRoot 'tests'
+$unitTestProjectPath = Join-Path $testsRootPath 'Quizzical.UnitTests\Quizzical.UnitTests.csproj'
 
 function Invoke-DotNetCommand {
     param(
@@ -29,30 +30,53 @@ function Invoke-DotNetCommand {
     }
 }
 
-switch ($Task) {
-    'help' {
-        Write-Host 'Quizzical local workflow helper' -ForegroundColor Green
-        Write-Host ''
-        Write-Host 'Examples:'
-        Write-Host '  ./run-local.ps1 restore'
-        Write-Host '  ./run-local.ps1 build'
-        Write-Host '  ./run-local.ps1 test'
-        Write-Host '  ./run-local.ps1 unit-tests'
-        Write-Host '  ./run-local.ps1 format'
-        Write-Host '  ./run-local.ps1 run'
-        Write-Host '  ./run-local.ps1 all'
-        break
+function Resolve-ExistingFilePath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "Could not find $Description at '$Path'."
     }
-    'restore' {
-        Invoke-DotNetCommand -Arguments @('restore', $solutionPath)
-        break
+
+    return (Resolve-Path -LiteralPath $Path).Path
+}
+
+function Get-TestProjectPaths {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Pattern,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+
+    if (-not (Test-Path -LiteralPath $testsRootPath -PathType Container)) {
+        throw "Could not find tests folder at '$testsRootPath'."
     }
-    'build' {
-        Invoke-DotNetCommand -Arguments @('build', '--nologo', $solutionPath)
-        break
+
+    $projectPaths = @(
+        Get-ChildItem -Path $testsRootPath -Recurse -Filter $Pattern -File |
+            Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
+            Sort-Object -Property FullName |
+            ForEach-Object { $_.FullName }
+    )
+
+    if ($projectPaths.Count -eq 0) {
+        throw "Could not find any $Description test projects in '$testsRootPath'. Only checked-in *.csproj files outside bin\ and obj\ are considered."
     }
-    'run' {
-        $arguments = @('run', '--project', $appProjectPath)
+
+    return $projectPaths
+}
+
+switch ($Target) {
+    'app' {
+        $resolvedAppProjectPath = Resolve-ExistingFilePath -Path $appProjectPath -Description 'the app project'
+        $arguments = @('run', '--project', $resolvedAppProjectPath)
 
         if ($null -ne $RemainingArgs -and $RemainingArgs.Length -gt 0) {
             $arguments += '--'
@@ -62,23 +86,25 @@ switch ($Task) {
         Invoke-DotNetCommand -Arguments $arguments
         break
     }
-    'test' {
-        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $solutionPath)
+    'tests' {
+        $testProjectPaths = Get-TestProjectPaths -Pattern '*Tests.csproj' -Description 'local'
+
+        foreach ($testProjectPath in $testProjectPaths) {
+            Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $testProjectPath)
+        }
         break
     }
     'unit-tests' {
-        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $testProjectPath)
+        $resolvedUnitTestProjectPath = Resolve-ExistingFilePath -Path $unitTestProjectPath -Description 'the unit test project'
+        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $resolvedUnitTestProjectPath)
         break
     }
-    'format' {
-        Invoke-DotNetCommand -Arguments @('format', '--verify-no-changes', $solutionPath)
-        break
-    }
-    'all' {
-        Invoke-DotNetCommand -Arguments @('restore', $solutionPath)
-        Invoke-DotNetCommand -Arguments @('format', '--verify-no-changes', $solutionPath)
-        Invoke-DotNetCommand -Arguments @('build', '--nologo', $solutionPath)
-        Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $solutionPath)
+    'e2e-tests' {
+        $e2eTestProjectPaths = Get-TestProjectPaths -Pattern '*E2E*.csproj' -Description 'E2E'
+
+        foreach ($e2eTestProjectPath in $e2eTestProjectPaths) {
+            Invoke-DotNetCommand -Arguments @('test', '--nologo', '-v', 'minimal', $e2eTestProjectPath)
+        }
         break
     }
 }
