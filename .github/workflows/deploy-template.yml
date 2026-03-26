@@ -29,7 +29,3 @@ jobs:
           path: ./tests/Quizzical.UnitTests/TestResults-${{ github.run_id }}-${{ github.run_attempt }}
       - name: build quizzical app
         run: dotnet publish ./src/Quizzical/Quizzical.csproj -c Release -o ./Publish/Quizzical
-      - name: azure login
-        uses: azure/login@v2.2.0
-        with:
-          creds: ${{ secrets.SERVICEPRINCIPAL }}
