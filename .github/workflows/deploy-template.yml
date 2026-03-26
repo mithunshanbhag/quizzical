@@ -1,20 +1,10 @@
-name: finskew-deploy-template
+name: quizzical-deploy-template
 
 on:
   workflow_call:
-    inputs:
-      runProvisioning:
-        type: boolean
-        required: true
-        default: false
 
 env:
-  APP_NAME: finskew
   DOTNET_VERSION_10: "10.0.x"
-  RESOURCE_GROUP_NAME: finskew-rg
-  # metadata will be stored, and not where the resource groups will be deployed.
-  # You can specify any location for `SUB_DEPLOYMENT_REGION`. It's the region where the deployment
-  SUB_DEPLOYMENT_REGION: centralindia
 
 jobs:
   build-deploy-quizzical-app:
